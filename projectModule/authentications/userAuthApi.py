@@ -83,7 +83,7 @@ def InsertValue():
         mongo = MongoDBManagement(
             os.getenv("USERID"), os.getenv("PASSWORD"))
         mongo.insertRecord(db_name="Communication_App",
-                           collection_name="Participaints", record=temp)
+                           collection_name="Users", record=temp)
         mongo.insertRecord(db_name="Users",
                                  collection_name="General_Details", record=temp)
         session.pop('UserData', None)
