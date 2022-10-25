@@ -137,7 +137,7 @@ def UserLogin():
             data = request.get_json()
             mongo = MongoDBManagement(
                 os.getenv("USERID"), os.getenv("PASSWORD"))
-            searched_data = mongo.findfirstRecord(db_name="Communication_App", collection_name="Participaints", query={
+            searched_data = mongo.findfirstRecord(db_name="Communication_App", collection_name="Users", query={
                 "email": data['email'], })
             if searched_data:
                 if bcrypt.checkpw(data['password'].encode('utf-8'), searched_data['password']):
