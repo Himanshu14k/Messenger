@@ -1,8 +1,12 @@
+import imp
+
+
 try:
     from flask import Flask, render_template, request, redirect, url_for
     from dotenv import load_dotenv
     from flask_bcrypt import Bcrypt
     from projectModule.authentications.userAuthApi import userAuth_blueprint
+    from projectModule.videoRoomsOperation.videoRoomsApi import videoRooms_blueprint
     from flask_talisman import Talisman
     from flask_socketio import SocketIO, join_room, leave_room
     from flask_cors import CORS
@@ -46,7 +50,7 @@ bcrypt = Bcrypt(app)
 
 
 app.register_blueprint(userAuth_blueprint, url_prefix="/user")
-# here "sp" stands for service provider
+app.register_blueprint(videoRooms_blueprint, url_prefix="/vr")
 
 
 @app.route('/')

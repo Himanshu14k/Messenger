@@ -409,7 +409,7 @@ class MongoDBManagement:
                 f"(updateOneNestedRecordPartally): Failed to update the records partally with given collection query or database name.\n" + str(
                     e))
 
-    def updateMultipleRecord(self, db_name, collection_name, query):
+    def updateMultipleRecord(self, db_name, collection_name, query, newVal):
         """
         """
         try:
@@ -418,11 +418,8 @@ class MongoDBManagement:
             if collection_check_status:
                 collection = self.getCollection(
                     collection_name=collection_name, db_name=db_name)
-                previous_records = self.findAllRecords(
-                    db_name=db_name, collection_name=collection_name)
-                new_records = query
                 updated_records = collection.update_many(
-                    previous_records, new_records)
+                    query, newVal, upsert=False)
                 return updated_records
         except Exception as e:
             raise Exception(

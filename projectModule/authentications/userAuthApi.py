@@ -75,6 +75,7 @@ def InsertValue():
         temp['status'] = 0
         temp['token'] = ''
         temp['device_token'] = ''
+        temp['meets_id']=[]
         temp['created_at'] = datetime.now(
             pytz.timezone('Asia/Kolkata'))
         session['UserData'].pop('name')
@@ -84,8 +85,6 @@ def InsertValue():
             os.getenv("USERID"), os.getenv("PASSWORD"))
         mongo.insertRecord(db_name="Communication_App",
                            collection_name="Users", record=temp)
-        mongo.insertRecord(db_name="Users",
-                                 collection_name="General_Details", record=temp)
         session.pop('UserData', None)
         session.pop('SharedOTP', None)
     except Exception as e:
