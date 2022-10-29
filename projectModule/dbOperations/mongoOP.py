@@ -419,7 +419,7 @@ class MongoDBManagement:
                 collection = self.getCollection(
                     collection_name=collection_name, db_name=db_name)
                 updated_records = collection.update_many(
-                    query, newVal, upsert=False)
+                    query, newVal, upsert=True)
                 return updated_records
         except Exception as e:
             raise Exception(

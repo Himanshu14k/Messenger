@@ -75,7 +75,8 @@ def InsertValue():
         temp['status'] = 0
         temp['token'] = ''
         temp['device_token'] = ''
-        temp['meets_id']=[]
+        temp['invitation_meetsId']=[]
+        temp['orgainzer_meetsId']=[]
         temp['created_at'] = datetime.now(
             pytz.timezone('Asia/Kolkata'))
         session['UserData'].pop('name')
@@ -271,6 +272,24 @@ def UserInsertNewPassword():
         print("Error : Error occured during changing of user password.")
         print("Exception is : ", e)
 
+def GetMeetsId(id):
+    try:
+        mongo = MongoDBManagement(
+                os.getenv("USERID"), os.getenv("PASSWORD"))
+        data = mongo.findfirstRecord(db_name="Communication_App", collection_name="Users",
+                                        query={
+                                            "_id": id
+                                        }, includeField={
+                                            '_id': 1,
+                                            "name": 1,
+                                            "invitation_meetsId": 1,
+                                            "orgainzer_meetsId": 1
+                                        }
+                                        )
+        return data
+    except Exception as e:
+        pass
+
 
 @userAuth_blueprint.route("/getProfile", methods=["GET"])
 def ViewRegisteredProfile():
@@ -282,17 +301,14 @@ def ViewRegisteredProfile():
             id = request.args.get('id')
             mongo = MongoDBManagement(
                 os.getenv("USERID"), os.getenv("PASSWORD"))
-            data = mongo.findfirstRecord(db_name="Communication_App", collection_name="Participaints",
+            data = mongo.findfirstRecord(db_name="Communication_App", collection_name="Users",
                                          query={
                                              "_id": id
                                          }, includeField={
                                              '_id': 1,
-                                             "email": 1,
                                              "name": 1,
-                                             "phone_number": 1,
-                                             "gender": 1,
-                                             "age": 1,
-                                             "profilePic": 1,
+                                             "invitation_meetsId": 1,
+                                            "orgainzer_meetsId": 1
                                          }
                                          )
 

@@ -1,4 +1,5 @@
 from nis import cat
+from projectModule.authentications.userAuthApi import GetMeetsId
 from projectModule.constants.http_status_code import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_405_METHOD_NOT_ALLOWED, HTTP_417_EXPECTATION_FAILED
 
 
@@ -31,10 +32,8 @@ def CreateMeetRoom():
         if request.method == "POST":
             data = request.get_json()
             
-            print("data is : ", data)
             m_id = InsertInVR(data)
-            print("meet id : ",m_id)
-            if InsertInUserCollection(m_id, data['invities']) == True:
+            if InsertInUserCollection(m_id, data['invities'], data['uId']) == True:
                 return jsonify({'status': "success", "code": 401, "msg": "Meeting created successfully!"})
             else:
                 return jsonify({'status': "failed", "code": 401, "msg": "Failed to create meeting link."})
@@ -70,17 +69,65 @@ def InsertInVR(data):
     except Exception as e:
         print("Error is : ", str(e))
 
-def InsertInUserCollection(link, invities):
+def InsertInUserCollection(meet_Id, invities, uId):
     try:
         mongo = MongoDBManagement(
             os.getenv("USERID"), os.getenv("PASSWORD"))
-        print("id and ivities are : ",link, invities)
         mongo.updateMultipleRecord(db_name="Communication_App",
                            collection_name="Users", query={
                             "_id": {"$in": invities}
                            }, newVal={
-                            "$push":{"meets_id":link}
+                            "$push":{"invitation_meetsId":meet_Id}
+                           })
+        mongo.updateMultipleRecord(db_name="Communication_App",
+                           collection_name="Users", query={
+                            "_id": uId
+                           }, newVal={
+                            "$push":{"orgainzer_meetsId":meet_Id}
                            })
         return True
     except Exception as e:
         print("Error is : ", str(e))
+
+def GetOrgainizerMeet(ids):
+    try:
+        mongo = MongoDBManagement(
+            os.getenv("USERID"), os.getenv("PASSWORD"))
+        data = mongo.findRecordOnQuery(db_name="Communication_App",
+                           collection_name="Video_Rooms", query={
+                            "_id": {"$in": ids}
+                           })
+        return data
+    except Exception as e:
+        print("Error is : ", str(e))
+
+def GetInvitationMeets(ids):
+    try:
+        mongo = MongoDBManagement(
+            os.getenv("USERID"), os.getenv("PASSWORD"))
+        data = mongo.findRecordOnQuery(db_name="Communication_App",
+                           collection_name="Video_Rooms", query={
+                            "_id": {"$in": ids}
+                           })
+        return data
+    except Exception as e:
+        pass
+
+
+@videoRooms_blueprint.route("/getR", methods=["GET"])
+def GetVideoRooms():
+    """
+        """
+    try:
+        if request.method == "GET":
+            id = request.args.get('id')
+            meets_Id = GetMeetsId(id)
+            OrgainizerMeets = GetOrgainizerMeet(meets_Id['orgainzer_meetsId'])
+            InvitedMeets = GetInvitationMeets(meets_Id['invitation_meetsId'])
+            return jsonify({'status': "success", "code": 401, "msg": "Meeting created successfully!", "data":{"orgainizerMeets":list(OrgainizerMeets), "invitedMeets":list(InvitedMeets)}})
+        return jsonify({"status": "failed", "code": 401, "msg": "Only Post methods are allowed"})
+    except Exception as e:
+        print("Error (CreateMeetRoom): Error occured during meeting room creation.")
+        print("Exception is : ", e)
+        return jsonify({'status': "failed", "code": HTTP_417_EXPECTATION_FAILED, "msg":  str(e)}), HTTP_417_EXPECTATION_FAILED
+
