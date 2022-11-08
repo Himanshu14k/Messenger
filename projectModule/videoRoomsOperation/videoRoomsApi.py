@@ -1,22 +1,14 @@
-from nis import cat
-from projectModule.authentications.userAuthApi import GetMeetsId
-from projectModule.constants.http_status_code import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_405_METHOD_NOT_ALLOWED, HTTP_417_EXPECTATION_FAILED
-
-
 try:
-    from flask import Blueprint, jsonify, request, session, redirect, url_for
+    from flask import Blueprint, jsonify, request
     from projectModule.dbOperations.mongoOP import MongoDBManagement
     from dotenv import load_dotenv
-    import bcrypt
-    from datetime import datetime, timedelta
-    from projectModule.commonOperations import sendOtpOnPhone
+    from datetime import datetime
     import os
-    import jwt
     import uuid
-    from bson import ObjectId
     import pytz
-    from flask_mail import Message
-    from flask_jwt_extended import create_access_token, create_refresh_token
+    from projectModule.CommonOperations.twilioOperation import CreateVideoRoom
+    from projectModule.authentications.userAuthApi import GetMeetsId
+    from projectModule.constants.http_status_code import HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_405_METHOD_NOT_ALLOWED, HTTP_417_EXPECTATION_FAILED
 except Exception as e:
     print("Modules are Missing : {} ".format(e))
 
@@ -31,25 +23,28 @@ def CreateMeetRoom():
     try:
         if request.method == "POST":
             data = request.get_json()
-            
-            m_id = InsertInVR(data)
+
+            # video_room_sid = CreateVideoRoom(data['m_title'])
+            video_room_sid = os.getenv('VIDEO_ROOM_SID')
+
+            m_id = InsertInVR(data, video_room_sid)
             if InsertInUserCollection(m_id, data['invities'], data['uId']) == True:
-                return jsonify({'status': "success", "code": 401, "msg": "Meeting created successfully!"})
+                return jsonify({'status': "success", "code": 200, "msg": "Meeting created successfully!"}), HTTP_200_OK
             else:
-                return jsonify({'status': "failed", "code": 401, "msg": "Failed to create meeting link."})
-        return jsonify({"status": "failed", "code": 401, "msg": "Only Post methods are allowed"})
+                return jsonify({'status': "failed", "code": 401, "msg": "Failed to create meeting link."}), HTTP_401_UNAUTHORIZED
+        return jsonify({"status": "failed", "code": 401, "msg": "Only Post methods are allowed"}), HTTP_405_METHOD_NOT_ALLOWED
     except Exception as e:
         print("Error (CreateMeetRoom): Error occured during meeting room creation.")
         print("Exception is : ", e)
         return jsonify({'status': "failed", "code": HTTP_417_EXPECTATION_FAILED, "msg":  str(e)}), HTTP_417_EXPECTATION_FAILED
 
 
-def InsertInVR(data):
+def InsertInVR(data, video_room_sid):
     try:
         temp = {}
         id = uuid.uuid4().hex
         temp['_id'] = id
-        temp['m_link']=''
+        temp['video_room_sid']=video_room_sid
         temp['status']=1
         temp['metting_info'] = {
             "time_s":data['time_s'],
@@ -111,7 +106,7 @@ def GetInvitationMeets(ids):
                            })
         return data
     except Exception as e:
-        pass
+        print("Error is : ", str(e))
 
 
 @videoRooms_blueprint.route("/getR", methods=["GET"])
@@ -124,8 +119,8 @@ def GetVideoRooms():
             meets_Id = GetMeetsId(id)
             OrgainizerMeets = GetOrgainizerMeet(meets_Id['orgainzer_meetsId'])
             InvitedMeets = GetInvitationMeets(meets_Id['invitation_meetsId'])
-            return jsonify({'status': "success", "code": 401, "msg": "Meeting created successfully!", "data":{"orgainizerMeets":list(OrgainizerMeets), "invitedMeets":list(InvitedMeets)}})
-        return jsonify({"status": "failed", "code": 401, "msg": "Only Post methods are allowed"})
+            return jsonify({'status': "success", "code": 401, "msg": "Meeting created successfully!", "data":{"orgainizerMeets":list(OrgainizerMeets), "invitedMeets":list(InvitedMeets)}}), HTTP_200_OK
+        return jsonify({"status": "failed", "code": 401, "msg": "Only Post methods are allowed"}), HTTP_405_METHOD_NOT_ALLOWED
     except Exception as e:
         print("Error (CreateMeetRoom): Error occured during meeting room creation.")
         print("Exception is : ", e)

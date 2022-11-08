@@ -147,7 +147,7 @@ def UserLogin():
                     refresh_token = create_access_token(
                         identity=searched_data['_id'])
                     del searched_data['password']
-                    return jsonify({'status': "success", "code": 200, "msg": "User authenticated successfully.", "uId": searched_data['_id'], "token": {'refresh': refresh_token, 'access': access_token}})
+                    return jsonify({'status': "success", "code": 200, "msg": "User authenticated successfully.", "uId": searched_data['_id'], "name": searched_data['name'], "token": {'refresh': refresh_token, 'access': access_token}})
                 else:
                     return jsonify({'status': "failed", "code": 401, "msg": "Wrong Password."})
             else:
