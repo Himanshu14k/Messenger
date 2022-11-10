@@ -26,11 +26,10 @@ def CreateMeetRoom():
 
             # video_room_sid = CreateVideoRoom(data['m_title'])
             video_room_sid = os.getenv('VIDEO_ROOM_SID')
-            print("data is ", data)
 
             m_id = InsertInVR(data, video_room_sid)
             temp = []
-            for item in range(data['invities']):
+            for item in data['invities']:
                 temp.append(item['id'])
             if InsertInUserCollection(m_id, temp, data['created_by']['id']) == True:
                 return jsonify({'status': "success", "code": 200, "msg": "Meeting created successfully!"}), HTTP_200_OK
@@ -50,7 +49,6 @@ def InsertInVR(data, video_room_sid):
         temp['_id'] = id
         temp['video_room_sid']=video_room_sid
         temp['status']=1
-        print("2")
         temp['metting_info'] = {
             "time_s":data['time_s'],
             "time_e":data['time_e'],
@@ -58,7 +56,6 @@ def InsertInVR(data, video_room_sid):
             "m_title":data['m_title'],
             "type":data['type']
         }
-        print("3")
         temp['invities']=data['invities']
         temp['created_by']=data['created_by']
         temp['created_at'] = datetime.now(pytz.timezone('Asia/Kolkata'))
@@ -74,14 +71,12 @@ def InsertInUserCollection(meet_Id, invities, uId):
     try:
         mongo = MongoDBManagement(
             os.getenv("USERID"), os.getenv("PASSWORD"))
-        print("4")
         mongo.updateMultipleRecord(db_name="Communication_App",
                            collection_name="Users", query={
                             "_id": {"$in": invities}
                            }, newVal={
                             "$push":{"invitation_meetsId":meet_Id}
                            })
-        print("5")
         mongo.updateMultipleRecord(db_name="Communication_App",
                            collection_name="Users", query={
                             "_id": uId
