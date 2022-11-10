@@ -26,11 +26,13 @@ def CreateMeetRoom():
 
             # video_room_sid = CreateVideoRoom(data['m_title'])
             video_room_sid = os.getenv('VIDEO_ROOM_SID')
-            print("data is ")
+            print("data is ", data)
 
             m_id = InsertInVR(data, video_room_sid)
-            print("1")
-            if InsertInUserCollection(m_id, data['invities'], data['created_by']['id']) == True:
+            temp = []
+            for item in range(data['invities']):
+                temp.append(item['id'])
+            if InsertInUserCollection(m_id, temp, data['created_by']['id']) == True:
                 return jsonify({'status': "success", "code": 200, "msg": "Meeting created successfully!"}), HTTP_200_OK
             else:
                 return jsonify({'status': "failed", "code": 401, "msg": "Failed to create meeting link."}), HTTP_401_UNAUTHORIZED
@@ -72,12 +74,14 @@ def InsertInUserCollection(meet_Id, invities, uId):
     try:
         mongo = MongoDBManagement(
             os.getenv("USERID"), os.getenv("PASSWORD"))
+        print("4")
         mongo.updateMultipleRecord(db_name="Communication_App",
                            collection_name="Users", query={
                             "_id": {"$in": invities['id']}
                            }, newVal={
                             "$push":{"invitation_meetsId":meet_Id}
                            })
+        print("5")
         mongo.updateMultipleRecord(db_name="Communication_App",
                            collection_name="Users", query={
                             "_id": uId
