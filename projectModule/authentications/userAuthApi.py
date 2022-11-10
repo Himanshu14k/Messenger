@@ -322,3 +322,30 @@ def ViewRegisteredProfile():
         print("Error : Error occured during user profile fetching.")
         print("Error is : ", str(e))
         return jsonify({'status': "failed", "code": HTTP_417_EXPECTATION_FAILED, "msg":  str(e)}), HTTP_417_EXPECTATION_FAILED
+
+
+@userAuth_blueprint.route("/getAllMembers", methods=["GET"])
+def ListAllMembers():
+    """
+         This function use to get all registered profile.
+        """
+    try:
+        if request.method == "GET":
+            mongo = MongoDBManagement(
+                os.getenv("USERID"), os.getenv("PASSWORD"))
+            data = list(mongo.findAllRecords(
+                db_name="Communication_App", collection_name="Users", includeField={
+                    "_id": 1,
+                    "name": 1,
+                }))
+
+            if data:
+                return jsonify({'status': "success", "code": HTTP_200_OK, "msg": "Data found.", "data": data}), HTTP_200_OK
+            else:
+                return jsonify({'status': "failed", "code": HTTP_204_NO_CONTENT, "msg": "Data not found."}), HTTP_204_NO_CONTENT
+        else:
+            return jsonify({'status': "failed", "code": HTTP_405_METHOD_NOT_ALLOWED, "msg": "Only GET methods are allowed"}), HTTP_405_METHOD_NOT_ALLOWED
+    except Exception as e:
+        print("Error : Error occured during user profile fetching.")
+        print("Error is : ", str(e))
+        return jsonify({'status': "failed", "code": HTTP_417_EXPECTATION_FAILED, "msg":  str(e)}), HTTP_417_EXPECTATION_FAILED
