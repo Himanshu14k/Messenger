@@ -77,7 +77,7 @@ def InsertInUserCollection(meet_Id, invities, uId):
         print("4")
         mongo.updateMultipleRecord(db_name="Communication_App",
                            collection_name="Users", query={
-                            "_id": {"$in": invities['id']}
+                            "_id": {"$in": invities}
                            }, newVal={
                             "$push":{"invitation_meetsId":meet_Id}
                            })
