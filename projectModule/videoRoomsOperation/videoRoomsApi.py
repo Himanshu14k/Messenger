@@ -8,6 +8,7 @@ try:
     import pytz
     from projectModule.CommonOperations.twilioOperation import CreateVideoRoom
     from projectModule.authentications.userAuthApi import GetMeetsId
+    from projectModule.CommonOperations.twilioOperation import CreateAccessToken_Video
     from projectModule.constants.http_status_code import HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_405_METHOD_NOT_ALLOWED, HTTP_417_EXPECTATION_FAILED
 except Exception as e:
     print("Modules are Missing : {} ".format(e))
@@ -129,3 +130,17 @@ def GetVideoRooms():
         print("Exception is : ", e)
         return jsonify({'status': "failed", "code": HTTP_417_EXPECTATION_FAILED, "msg":  str(e)}), HTTP_417_EXPECTATION_FAILED
 
+@videoRooms_blueprint.route("/enterR", methods=["GET"])
+def CreateMeetRoomAccessToken():
+    """
+        """
+    try:
+        if request.method == "GET":
+            roomName = request.args.get('id')
+            room_Access_Token = CreateAccessToken_Video(roomName)
+            return jsonify({'status': "success", "code": 401, "msg": "Access token created successfully!", "token":room_Access_Token}), HTTP_200_OK
+        return jsonify({"status": "failed", "code": 401, "msg": "Only Post methods are allowed"}), HTTP_405_METHOD_NOT_ALLOWED
+    except Exception as e:
+        print("Error (CreateMeetRoomAccessToken): Error occured during meeting room Access token creation.")
+        print("Exception is : ", e)
+        return jsonify({'status': "failed", "code": HTTP_417_EXPECTATION_FAILED, "msg":  str(e)}), HTTP_417_EXPECTATION_FAILED
