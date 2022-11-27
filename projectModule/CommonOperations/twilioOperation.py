@@ -41,6 +41,7 @@ def CreateAccessToken_Video(roomName):
         token.add_grant(video_grant)
 
         # Return token info as JSON
+        print(token.to_jwt())
         return token.to_jwt()
 
     except Exception as e:
