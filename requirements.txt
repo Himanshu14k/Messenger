@@ -29,7 +29,7 @@ itsdangerous==2.1.2
 Jinja2==3.1.1
 jmespath==1.0.0
 MarkupSafe==2.1.1
-pandas==1.4.2
+pandas
 pycodestyle==2.8.0
 pycparser==2.21
 PyJWT==2.3.0
