@@ -137,7 +137,8 @@ def CreateMeetRoomAccessToken():
     try:
         if request.method == "GET":
             roomName = request.args.get('roomName')
-            room_Access_Token = CreateAccessToken_Video(roomName)
+            userId = request.args.get('uId')
+            room_Access_Token = CreateAccessToken_Video(roomName, userId)
             return jsonify({'status': "success", "code": 401, "msg": "Access token created successfully!", "token":room_Access_Token}), HTTP_200_OK
         return jsonify({"status": "failed", "code": 401, "msg": "Only Post methods are allowed"}), HTTP_405_METHOD_NOT_ALLOWED
     except Exception as e:

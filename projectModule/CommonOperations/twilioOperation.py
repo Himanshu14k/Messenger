@@ -22,7 +22,7 @@ def CreateVideoRoom(roomName):
         print("Error is : ", str(e))
 
 
-def CreateAccessToken_Video(roomName):
+def CreateAccessToken_Video(roomName, userId):
     try:
         # Required for all Twilio Access Tokens
         # To set up environmental variables, see http://twil.io/secure
@@ -31,7 +31,7 @@ def CreateAccessToken_Video(roomName):
         api_secret = os.getenv('TWILIO_API_KEY_SECRET')
 
         # required for Video grant
-        identity = 'user'
+        identity = userId
 
         # Create Access Token with credentials
         token = AccessToken(account_sid, api_key, api_secret, identity=identity)
